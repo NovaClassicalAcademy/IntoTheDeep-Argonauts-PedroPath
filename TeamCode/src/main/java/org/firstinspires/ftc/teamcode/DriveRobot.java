@@ -1,13 +1,26 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MAX;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MIN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_CLOSE;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_INTAKE;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_OPEN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_LEFT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_RIGHT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_RIGHT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.BACK_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.BACK_RIGHT_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_SPEED;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MIN_MOTOR_SPEED;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MAX_MOTOR_SPEED;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_DOWN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_UP;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MAX_HEIGHT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MIN_HEIGHT;
 import static java.lang.Thread.sleep;
 import  org.firstinspires.ftc.teamcode.Argo_Movements.*;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -31,6 +44,8 @@ public class DriveRobot extends OpMode
     private Argo_Movements Argo_Robot_Move;
     private Claw_Movements Claw_Move;
     private Servo clawGrab;;
+    private Servo clawSpin;
+    private Servo clawArm;
 
     //This is the Gyro (actually the Inertial Measurement Unit)
     IMU imu;
@@ -70,10 +85,17 @@ public class DriveRobot extends OpMode
 
         //Slider
         sliderMotor = hardwareMap.dcMotor.get(SLIDER_MOTOR);//EHub- Port #1
+        sliderMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        sliderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        sliderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //Claw
         clawGrab = hardwareMap.servo.get(CLAW_INTAKE);
-        Claw_Move = new Claw_Movements(clawGrab,sliderMotor);
+        clawSpin = hardwareMap.servo.get(CLAW_SPIN);
+        clawArm = hardwareMap.servo.get(CLAW_UP_DOWN);
+        Claw_Move = new Claw_Movements(clawGrab,sliderMotor, clawSpin, clawArm);
+
+        clawArm.setPosition(ARM_MIN);
 
     }
     /*
@@ -128,25 +150,37 @@ public class DriveRobot extends OpMode
         telemetry.addData("Back Right Power", backRightPower);
         telemetry.update();
 
-       //Claw operations
+       //Claw operations - Open and Close
 
-        if (gamepad2.right_bumper){ // Close claw
-            Claw_Move.claw_Grabber(clawGrab,1);
-        } else if (gamepad2.left_bumper) { //Open claw
-            Claw_Move.claw_Grabber(clawGrab, 0);
+        if (gamepad2.right_trigger>0.1){ // Close claw
+            Claw_Move.claw_Grabber(clawGrab,CLAW_CLOSE);
+        } else if (gamepad2.left_trigger >0.1) { //Open claw
+            Claw_Move.claw_Grabber(clawGrab, CLAW_OPEN);
+        }
+        // Claw Spin // Gamepad 2 - x,b
+
+        if (gamepad2.x){ // Spin left
+            Claw_Move.claw_Rotate(clawSpin,CLAW_SPIN_LEFT);
+        } else if (gamepad2.b) { //spin right
+            Claw_Move.claw_Rotate(clawSpin, CLAW_SPIN_RIGHT);
+        }
+//move arm up/down
+        if (gamepad2.dpad_up){
+            Claw_Move.claw_moveArm(clawArm,MOVE_UP);
+        } else if (gamepad2.dpad_down) {
+            Claw_Move.claw_moveArm(clawArm, MOVE_DOWN);
         }
 
-        if (gamepad2.dpad_up){
-            Claw_Move.sliderMoveToPosition(sliderMotor,1);
-            if (Claw_Move.isAtTarget()){
-                Claw_Move.Slider_stop(sliderMotor);
+
+    // Move sliders up and down
+        if (gamepad1.dpad_up){
+            Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_UP);
             }
-        } else if (gamepad2.dpad_down){
-            Claw_Move.sliderMoveToPosition(sliderMotor,0);
-            if (Claw_Move.isAtTarget()){
-                Claw_Move.Slider_stop(sliderMotor);
+
+        if (gamepad1.dpad_down){
+            Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_DOWN);
             }
-        } else {
+         else {
             Claw_Move.Slider_stop(sliderMotor);
         }
     }
