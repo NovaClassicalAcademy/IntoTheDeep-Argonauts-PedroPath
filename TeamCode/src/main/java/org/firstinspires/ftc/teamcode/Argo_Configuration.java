@@ -18,25 +18,41 @@ public class Argo_Configuration {
         public static final String BACK_RIGHT_MOTOR = "rightRear";
 
         // Motor Name - Intake Slider
-        public static final String SLIDER_MOTOR = "SliderMotor";
+        public static final String SLIDER_MOTOR = "sliderMotor";
 
         // Servo position - Claw grab
         public static final double CLAW_GRAB_MIN = 0.17;
         public static final double CLAW_GRAB_MAX = 0.35;
 
+        //Claw positions
+
+        public static final int CLAW_OPEN = 0;
+        public static final int CLAW_CLOSE = 1;
+
+        //Claw Spin positions
+
+        public static final int CLAW_SPIN_LEFT = 0;
+        public static final int CLAW_SPIN_RIGHT = 1;
+
+        // Servo position - Claw Spin
+        public static final double CLAW_SPIN_MIN = 0.2;
+        public static final double CLAW_SPIN_MAX = 0.6;
+
+        // Servo position - Claw Spin
+        public static final double ARM_MIN = 0.3;
+        public static final double ARM_MAX = 0.8;
+
         // Servo Motor Names
-        public static final String CLAW_INTAKE = "servoGrab";
-        public static final String CLAW_SPIN = "ServoSpin";
-        public static final String CLAW_UP_DOWN = "servoMain";
+        public static final String CLAW_INTAKE = "servoGrab";//port #2
+        public static final String CLAW_SPIN = "servoSpin";//port #1
+        public static final String CLAW_UP_DOWN = "servoArm";//port #0
 
         // Motor speeds (Power settings)
         public static final double MAX_MOTOR_SPEED = 1.0;
         public static final double MIN_MOTOR_SPEED = 0.2;
 
         // Slider Motor speeds (Power settings)
-        public static final double MAX_SLIDER_SPEED = 0.5;
-        public static final double MIN_SLIDER_SPEED = 0.2;
-
+        public static final double SLIDER_SPEED = 1.0;
 
         // Robot Movement Speeds (Drive system)
         public static final double DRIVE_SPEED = 0.5; // 50% speed
@@ -45,6 +61,10 @@ public class Argo_Configuration {
         //Slider Height
         public static final int SLIDE_MAX_HEIGHT = 5800;
         public static final int SLIDE_MIN_HEIGHT = 0;
+
+        // Slider direction
+        public static final int MOVE_DOWN = 0;
+        public static final int MOVE_UP = 1;
 
         // Autonomous Mode Timeouts (in seconds)
         public static final double AUTONOMOUS_TIME_LIMIT = 30.0;
