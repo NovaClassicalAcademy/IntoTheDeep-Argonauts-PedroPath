@@ -45,37 +45,39 @@ public class Claw_Movements {
         }
     }
     public void claw_moveArm(Servo clawArm, int clawDirection) {
-        //Claw Open = 0
+        double newPos;
+        double currPos;
+        currPos = clawArm.getPosition();
         if (clawDirection == MOVE_UP) {
-            clawArm.setPosition(ARM_MIN);
-            //Claw closed = 1
+             newPos = currPos - 0.01;
+            if (newPos >ARM_MIN){
+                clawArm.setPosition(newPos);
+            }
         } else if (clawDirection == MOVE_DOWN) {
-            clawArm.setPosition(ARM_MAX);
+            newPos = currPos + 0.01;
+            if (newPos <ARM_MAX){
+                clawArm.setPosition(newPos);
+            }
         }
     }
     public void claw_Rotate(Servo clawSpin, int clawDirection) {
         double newPos;
         double currPos;
+        currPos =clawSpin.getPosition();
         //Claw spin left
         if (clawDirection == CLAW_SPIN_LEFT) {
-            currPos =clawSpin.getPosition();
-            newPos = currPos -0.01;
+                newPos = currPos -0.01;
             if (newPos > CLAW_SPIN_MIN) {
                 clawSpin.setPosition(newPos);
             }
             //Claw spin right
         } else if (clawDirection == CLAW_SPIN_RIGHT) {
-            currPos =clawSpin.getPosition();
             newPos = currPos +0.01;
             if (newPos < CLAW_SPIN_MAX) {
                 clawSpin.setPosition(newPos);
             }
-
-
-            clawGrab.setPosition(CLAW_SPIN_MAX);
         }
     }
-
 
     public void sliderMoveToPosition(DcMotor sliderMotor, int sliderDirection) {
         double motorSpeed = 0;
