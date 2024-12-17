@@ -68,4 +68,7 @@ public class Argo_Configuration {
 
         // Autonomous Mode Timeouts (in seconds)
         public static final double AUTONOMOUS_TIME_LIMIT = 30.0;
+
+        //Ticks per inch from encoder
+        static final double COUNTS_PER_INCH = 1440;
 }
