@@ -3,8 +3,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import static com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MAX;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MIN;
@@ -16,24 +18,32 @@ import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_LEFT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_MAX;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_RIGHT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_DOWN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_UP;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_SPEED;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MAX_HEIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MIN_HEIGHT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.T_SENSOR;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Claw_Movements {
     private Servo clawGrab;
     private Servo clawSpin;
     private Servo clawArm;
     private DcMotor sliderMotor;
+    private TouchSensor tSensor;
+    private Telemetry telemetry;
 
 
-    public Claw_Movements(Servo ClawGrabber, DcMotor sliderMotor,Servo clawSpin, Servo clawArm) {
+    public Claw_Movements(Servo ClawGrabber, DcMotor sliderMotor,Servo clawSpin, Servo clawArm,TouchSensor tSensor,Telemetry telemetry) {
         this.clawGrab = ClawGrabber;
         this.sliderMotor = sliderMotor;
         this.clawSpin = clawSpin;
         this.clawArm = clawArm;
+        this.tSensor = tSensor;
+        this.telemetry = telemetry;
     }
     public void claw_Grabber(Servo clawGrab, int clawDirection) {
         //Claw Open = 0
@@ -48,6 +58,7 @@ public class Claw_Movements {
         double newPos;
         double currPos;
         currPos = clawArm.getPosition();
+
         if (clawDirection == MOVE_UP) {
              newPos = currPos - 0.01;
             if (newPos >ARM_MIN){
@@ -59,6 +70,8 @@ public class Claw_Movements {
                 clawArm.setPosition(newPos);
             }
         }
+        telemetry.addData("Arm position 3 ", clawArm.getPosition());
+        telemetry.update();
     }
     public void claw_Rotate(Servo clawSpin, int clawDirection) {
         double newPos;
@@ -79,31 +92,50 @@ public class Claw_Movements {
         }
     }
 
-    public void sliderMoveToPosition(DcMotor sliderMotor, int sliderDirection) {
+    public void sliderMoveToPosition(DcMotor sliderMotor, int sliderDirection, TouchSensor tSensor) {
         double motorSpeed = 0;
-        // sliderDirection = 0 - Down; 1 - Up
+        int currPos;
+        int newPos;
 
+        currPos = sliderMotor.getCurrentPosition();
+        // sliderDirection = 0 - Down; 1 - Up
         if (sliderDirection == MOVE_DOWN) {
             // Set the target position for the motor (encoder position) - LOWEST POINT
-            sliderMotor.setTargetPosition(SLIDE_MIN_HEIGHT);
-            motorSpeed = -SLIDER_SPEED;
+            newPos = currPos - 10;
+            if (newPos >= SLIDE_MIN_HEIGHT) {
+                sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                sliderMotor.setTargetPosition(newPos);
+                motorSpeed = -SLIDER_SPEED;
+                // Set the motor power to move towards the target
+                sliderMotor.setPower(motorSpeed);
+            }
         } else if (sliderDirection == MOVE_UP) {
-            // Set the target position for the motor (encoder position) - HIGHEST POINT
-            sliderMotor.setTargetPosition(SLIDE_MAX_HEIGHT);
-            motorSpeed = SLIDER_SPEED;
+            newPos = currPos + 10;
+            if (newPos <= SLIDE_MAX_HEIGHT) {
+                sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                // Set the target position for the motor (encoder position) - HIGHEST POINT
+                sliderMotor.setTargetPosition(newPos);
+                motorSpeed = SLIDER_SPEED;
+                sliderMotor.setPower(motorSpeed);
+            }
         }
-        // Set the motor mode to run to the target position
-        sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        // Set the motor power to move towards the target
-        sliderMotor.setPower(motorSpeed); // Full power, adjust as needed
-
-        // Wait until the motor reaches the target position
-        while (sliderMotor.isBusy()) {
+       while (sliderMotor.isBusy() ) {
             // This loop will wait until the motor reaches the target position
             // You can also add other logic here, like displaying telemetry data
-            telemetry.addData("Slider", "Moving to target...");
-            telemetry.update();
+           // telemetry.addData("Slider", "Moving to target...");
+          //  telemetry.update();
+            if (tSensor.isPressed()) {
+
+                telemetry.addData("Switch 2 ", "Pressed");
+                telemetry.update();
+                Slider_stop(sliderMotor);
+            }else
+            {
+                telemetry.addData("Switch 2 ", "Not Pressed");
+                telemetry.update();
+            }
+
         }
     }
     // Method to stop the motor (just in case)

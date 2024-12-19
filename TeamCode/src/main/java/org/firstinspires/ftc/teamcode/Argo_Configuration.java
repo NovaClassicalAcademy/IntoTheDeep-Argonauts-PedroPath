@@ -59,8 +59,8 @@ public class Argo_Configuration {
         public static final double TURN_SPEED = 0.3; // 30% turning speed
 
         //Slider Height
-        public static final int SLIDE_MAX_HEIGHT = 5800;
-        public static final int SLIDE_MIN_HEIGHT = 0;
+        public static final int SLIDE_MAX_HEIGHT = 5500;
+        public static final int SLIDE_MIN_HEIGHT = 10;
 
         // Slider direction
         public static final int MOVE_DOWN = 0;
@@ -71,4 +71,8 @@ public class Argo_Configuration {
 
         //Ticks per inch from encoder
         static final double COUNTS_PER_INCH = 1440;
+
+        // Motor Names - Drivetrain
+        public static final String T_SENSOR = "tSensor";
+
 }

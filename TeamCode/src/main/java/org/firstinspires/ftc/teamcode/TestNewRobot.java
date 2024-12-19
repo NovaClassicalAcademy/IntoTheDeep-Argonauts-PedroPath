@@ -53,7 +53,7 @@ public class TestNewRobot extends OpMode
         // Adjust the orientation parameters to match your robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+                RevHubOrientationOnRobot.UsbFacingDirection.UP));
         imu.initialize(parameters);
         //Field-centric initialization - end
         imu.resetYaw();  //reset the gyro

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MAX;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_CLOSE;
@@ -21,6 +22,7 @@ import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_UP;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MAX_HEIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MIN_HEIGHT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.T_SENSOR;
 import static java.lang.Thread.sleep;
 import  org.firstinspires.ftc.teamcode.Argo_Movements.*;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -31,6 +33,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 //*TELEMETRY- Set power so that it will move but do sleep 2 sec so the servo moves*//
@@ -46,7 +50,7 @@ public class DriveRobot extends OpMode
     private Servo clawGrab;;
     private Servo clawSpin;
     private Servo clawArm;
-
+    TouchSensor tSensor;
     //This is the Gyro (actually the Inertial Measurement Unit)
     IMU imu;
 
@@ -93,10 +97,11 @@ public class DriveRobot extends OpMode
         clawGrab = hardwareMap.servo.get(CLAW_INTAKE);
         clawSpin = hardwareMap.servo.get(CLAW_SPIN);
         clawArm = hardwareMap.servo.get(CLAW_UP_DOWN);
-        Claw_Move = new Claw_Movements(clawGrab,sliderMotor, clawSpin, clawArm);
+        Claw_Move = new Claw_Movements(clawGrab,sliderMotor, clawSpin, clawArm,tSensor,telemetry);
 
-        clawArm.setPosition(ARM_MIN);
+        clawArm.setPosition(0.5);
 
+        tSensor = hardwareMap.touchSensor.get(T_SENSOR);//E Hub - Port #0
     }
     /*
      * Code to run REPEATEDLY after the driver hits START but before they hit STOP
@@ -166,19 +171,23 @@ public class DriveRobot extends OpMode
         }
 //move arm up/down
         if (gamepad2.dpad_up){
+            telemetry.addData("Arm position 1", clawArm.getPosition());
+            telemetry.update();
             Claw_Move.claw_moveArm(clawArm,MOVE_UP);
         } else if (gamepad2.dpad_down) {
+            telemetry.addData("Arm position 2", clawArm.getPosition());
+            telemetry.update();
             Claw_Move.claw_moveArm(clawArm, MOVE_DOWN);
         }
 
 
     // Move sliders up and down
         if (gamepad1.dpad_up){
-            Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_UP);
+            Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_UP,tSensor);
             }
 
         if (gamepad1.dpad_down){
-            Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_DOWN);
+            Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_DOWN,tSensor);
             }
          else {
             Claw_Move.Slider_stop(sliderMotor);
