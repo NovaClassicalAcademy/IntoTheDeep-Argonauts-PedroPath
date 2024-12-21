@@ -99,7 +99,7 @@ public class DriveRobot extends OpMode
         clawArm = hardwareMap.servo.get(CLAW_UP_DOWN);
         Claw_Move = new Claw_Movements(clawGrab,sliderMotor, clawSpin, clawArm,tSensor,telemetry);
 
-        clawArm.setPosition(0.5);
+        clawArm.setPosition(ARM_MIN);
 
         tSensor = hardwareMap.touchSensor.get(T_SENSOR);//E Hub - Port #0
     }
@@ -180,6 +180,8 @@ public class DriveRobot extends OpMode
             Claw_Move.claw_moveArm(clawArm, MOVE_DOWN);
         }
 
+        telemetry.addData("Arm current position ", clawArm.getPosition());
+        telemetry.update();
 
     // Move sliders up and down
         if (gamepad1.dpad_up){

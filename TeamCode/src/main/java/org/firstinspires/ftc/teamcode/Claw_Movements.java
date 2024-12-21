@@ -79,14 +79,14 @@ public class Claw_Movements {
         currPos =clawSpin.getPosition();
         //Claw spin left
         if (clawDirection == CLAW_SPIN_LEFT) {
-                newPos = currPos -0.01;
-            if (newPos > CLAW_SPIN_MIN) {
+                newPos = currPos +0.01;
+            if (newPos < CLAW_SPIN_MIN) {
                 clawSpin.setPosition(newPos);
             }
             //Claw spin right
         } else if (clawDirection == CLAW_SPIN_RIGHT) {
-            newPos = currPos +0.01;
-            if (newPos < CLAW_SPIN_MAX) {
+            newPos = currPos -0.01;
+            if (newPos > CLAW_SPIN_MAX) {
                 clawSpin.setPosition(newPos);
             }
         }
@@ -101,41 +101,38 @@ public class Claw_Movements {
         // sliderDirection = 0 - Down; 1 - Up
         if (sliderDirection == MOVE_DOWN) {
             // Set the target position for the motor (encoder position) - LOWEST POINT
-            newPos = currPos - 10;
-            if (newPos >= SLIDE_MIN_HEIGHT) {
-                sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                sliderMotor.setTargetPosition(newPos);
-                motorSpeed = -SLIDER_SPEED;
-                // Set the motor power to move towards the target
-                sliderMotor.setPower(motorSpeed);
-            }
-        } else if (sliderDirection == MOVE_UP) {
-            newPos = currPos + 10;
-            if (newPos <= SLIDE_MAX_HEIGHT) {
-                sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                // Set the target position for the motor (encoder position) - HIGHEST POINT
-                sliderMotor.setTargetPosition(newPos);
-                motorSpeed = SLIDER_SPEED;
-                sliderMotor.setPower(motorSpeed);
-            }
-        }
+            sliderMotor.setTargetPosition(SLIDE_MIN_HEIGHT);
+            sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorSpeed = -SLIDER_SPEED;
+            // Set the motor power to move towards the target
+            sliderMotor.setPower(motorSpeed);
 
-       while (sliderMotor.isBusy() ) {
+        } else if (sliderDirection == MOVE_UP) {
+            // Set the target position for the motor (encoder position) - HIGHEST POINT
+            sliderMotor.setTargetPosition(SLIDE_MAX_HEIGHT);
+            sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorSpeed = SLIDER_SPEED;
+            sliderMotor.setPower(motorSpeed);
+        }
+        telemetry.addData("Slider position before while loop ", sliderMotor.getCurrentPosition());
+        telemetry.update();
+        while (sliderMotor.isBusy()) {
             // This loop will wait until the motor reaches the target position
             // You can also add other logic here, like displaying telemetry data
-           // telemetry.addData("Slider", "Moving to target...");
-          //  telemetry.update();
-            if (tSensor.isPressed()) {
-
+            // telemetry.addData("Slider", "Moving to target...");
+            //  telemetry.update();
+            if (tSensor.isPressed() && sliderDirection == MOVE_DOWN) {
                 telemetry.addData("Switch 2 ", "Pressed");
+                telemetry.addData("Slider position before reset", sliderMotor.getCurrentPosition());
                 telemetry.update();
-                Slider_stop(sliderMotor);
-            }else
-            {
-                telemetry.addData("Switch 2 ", "Not Pressed");
+                //Slider_stop(sliderMotor);
+                sliderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                sliderMotor.setTargetPosition(SLIDE_MIN_HEIGHT);
+                sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                sliderMotor.setPower(motorSpeed);
+                telemetry.addData("Slider position after reset ", sliderMotor.getCurrentPosition());
                 telemetry.update();
             }
-
         }
     }
     // Method to stop the motor (just in case)

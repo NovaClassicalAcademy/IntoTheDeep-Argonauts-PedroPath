@@ -35,12 +35,12 @@ public class Argo_Configuration {
         public static final int CLAW_SPIN_RIGHT = 1;
 
         // Servo position - Claw Spin
-        public static final double CLAW_SPIN_MIN = 0.2;
-        public static final double CLAW_SPIN_MAX = 0.6;
+        public static final double CLAW_SPIN_MIN = 1;
+        public static final double CLAW_SPIN_MAX = 0.5;
 
         // Servo position - Claw Spin
-        public static final double ARM_MIN = 0.3;
-        public static final double ARM_MAX = 0.8;
+        public static final double ARM_MIN = 0.2;
+        public static final double ARM_MAX = 0.6;
 
         // Servo Motor Names
         public static final String CLAW_INTAKE = "servoGrab";//port #2
@@ -52,7 +52,7 @@ public class Argo_Configuration {
         public static final double MIN_MOTOR_SPEED = 0.2;
 
         // Slider Motor speeds (Power settings)
-        public static final double SLIDER_SPEED = 1.0;
+        public static final double SLIDER_SPEED = 0.3;
 
         // Robot Movement Speeds (Drive system)
         public static final double DRIVE_SPEED = 0.5; // 50% speed
@@ -60,7 +60,7 @@ public class Argo_Configuration {
 
         //Slider Height
         public static final int SLIDE_MAX_HEIGHT = 5500;
-        public static final int SLIDE_MIN_HEIGHT = 10;
+        public static final int SLIDE_MIN_HEIGHT = 0;
 
         // Slider direction
         public static final int MOVE_DOWN = 0;
