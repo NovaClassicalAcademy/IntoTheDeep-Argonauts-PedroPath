@@ -5,6 +5,9 @@ import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_LEFT_MOTOR
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_RIGHT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.BACK_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.BACK_RIGHT_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.MAX_MOTOR_SPEED;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.MIN_MOTOR_SPEED;
+
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -94,6 +97,19 @@ public class TestNewRobot extends OpMode
             frontRightPower /= maxPower;
             backLeftPower /= maxPower;
             backRightPower /= maxPower;
+        }
+        //Run robot at reduced speeds when the trigger is pressed.
+        if((gamepad1.left_trigger > 0.1) || (gamepad1.right_trigger > 0.1))
+        {
+            frontLeftPower *= MIN_MOTOR_SPEED;
+            frontRightPower *= MIN_MOTOR_SPEED;
+            backLeftPower  *= MIN_MOTOR_SPEED;
+            backRightPower  *= MIN_MOTOR_SPEED;
+        } else {
+            frontLeftPower *= MAX_MOTOR_SPEED;
+            frontRightPower *= MAX_MOTOR_SPEED;
+            backLeftPower *= MAX_MOTOR_SPEED;
+            backRightPower *= MAX_MOTOR_SPEED;
         }
         // Set motor powers
         Argo_Robot_Move.moveRobot(frontLeftPower,frontRightPower,backLeftPower,backRightPower);

@@ -139,20 +139,29 @@ public class DriveRobot extends OpMode
             backLeftPower /= maxPower;
             backRightPower /= maxPower;
         }
-        // Set motor powers
-        Argo_Robot_Move.moveRobot(frontLeftPower,frontRightPower,backLeftPower,backRightPower);
-        /*
-        frontLeftMotor.setPower(frontLeftPower);
-        frontRightMotor.setPower(frontRightPower);
-        backLeftMotor.setPower(backLeftPower);
-        backRightMotor.setPower(backRightPower);
-        */
+        //Run robot at reduced speeds when the trigger is pressed.
+        if((gamepad1.left_trigger > 0.1) || (gamepad1.right_trigger > 0.1))
+        {
+            frontLeftPower *= MIN_MOTOR_SPEED;
+            frontRightPower *= MIN_MOTOR_SPEED;
+            backLeftPower  *= MIN_MOTOR_SPEED;
+            backRightPower  *= MIN_MOTOR_SPEED;
+        } else {
+            frontLeftPower *= MAX_MOTOR_SPEED;
+            frontRightPower *= MAX_MOTOR_SPEED;
+            backLeftPower *= MAX_MOTOR_SPEED;
+            backRightPower *= MAX_MOTOR_SPEED;
+        }
+        // Run motor and regular speed
+            Argo_Robot_Move.moveRobot(frontLeftPower,frontRightPower,backLeftPower,backRightPower);
+
         // Update telemetry
         telemetry.addData("Heading", robotHeading);
         telemetry.addData("Front Left Power", frontLeftPower);
         telemetry.addData("Front Right Power", frontRightPower);
         telemetry.addData("Back Left Power", backLeftPower);
         telemetry.addData("Back Right Power", backRightPower);
+        telemetry.addData("Slider Position", sliderMotor.getCurrentPosition());
         telemetry.update();
 
        //Claw operations - Open and Close
@@ -161,6 +170,8 @@ public class DriveRobot extends OpMode
             Claw_Move.claw_Grabber(clawGrab,CLAW_CLOSE);
         } else if (gamepad2.left_trigger >0.1) { //Open claw
             Claw_Move.claw_Grabber(clawGrab, CLAW_OPEN);
+            telemetry.addData("claw Grab position", clawGrab.getPosition());
+            telemetry.update();
         }
         // Claw Spin // Gamepad 2 - x,b
 
@@ -191,7 +202,17 @@ public class DriveRobot extends OpMode
         if (gamepad1.dpad_down){
             Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_DOWN,tSensor);
             }
-         else {
+         //else {
+          //  Claw_Move.Slider_stop(sliderMotor);
+        //}
+        // Move sliders up and down to hang the specimen
+        if (gamepad2.y){
+            Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_UP,tSensor);
+        }
+        if (gamepad2.a){
+            Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
+        }
+        else {
             Claw_Move.Slider_stop(sliderMotor);
         }
     }

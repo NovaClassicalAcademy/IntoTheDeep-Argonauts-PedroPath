@@ -29,16 +29,27 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MID_POINT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.BACK_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.BACK_RIGHT_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_INTAKE;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_OPEN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_RIGHT_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_DOWN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_UP;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.T_SENSOR;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
@@ -67,14 +78,21 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Argo_Auto", group="Robot")
+@Autonomous(name="Argo_Auto_Right", group="Robot")
 //@Disabled
-public class Argo_Auto extends LinearOpMode {
+public class Argo_Auto_Right extends LinearOpMode {
 
     /* Declare OpMode members. */
 
     private DcMotor frontLeftMotor,backLeftMotor,frontRightMotor,backRightMotor,sliderMotor;
     private ElapsedTime     runtime = new ElapsedTime();
+
+    private Argo_Movements Argo_Robot_Move;
+    private Claw_Movements Claw_Move;
+    private Servo clawGrab;;
+    private Servo clawSpin;
+    private Servo clawArm;
+    TouchSensor tSensor;
 
     // Calculate the COUNTS_PER_INCH for your specific drive train.
     // Go to your motor vendor website to determine your motor's COUNTS_PER_MOTOR_REV
@@ -100,6 +118,21 @@ public class Argo_Auto extends LinearOpMode {
         frontRightMotor = hardwareMap.dcMotor.get(FRONT_RIGHT_MOTOR);//Hub - Port #0
         backRightMotor = hardwareMap.dcMotor.get(BACK_RIGHT_MOTOR);//Hub - Port #3
 
+        //Slider
+        sliderMotor = hardwareMap.dcMotor.get(SLIDER_MOTOR);//EHub- Port #1
+        sliderMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        sliderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        sliderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //Claw
+        clawGrab = hardwareMap.servo.get(CLAW_INTAKE);
+        clawSpin = hardwareMap.servo.get(CLAW_SPIN);
+        clawArm = hardwareMap.servo.get(CLAW_UP_DOWN);
+        Claw_Move = new Claw_Movements(clawGrab,sliderMotor, clawSpin, clawArm,tSensor,telemetry);
+
+        clawArm.setPosition(ARM_MIN);
+
+        tSensor = hardwareMap.touchSensor.get(T_SENSOR);//E Hub - Port #0
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
@@ -130,14 +163,37 @@ public class Argo_Auto extends LinearOpMode {
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED,  48,  48,48,48,5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(TURN_SPEED,   12, -12, 12, -12,4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        encoderDrive(DRIVE_SPEED, -24, -24, -24,-24,4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+        //encoderDrive(DRIVE_SPEED,  12,  12,12,12,3.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        //encoderDrive(TURN_SPEED,   -2, 2, -2, 2,2.0);  // S2: Turn left 12 Inches with 4 Sec timeout
+        //encoderDrive(DRIVE_SPEED, 24, 24, 24,24,6.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+
+        encoderDrive(DRIVE_SPEED,  20,  20,20,20,1.0);
+        encoderDrive(DRIVE_SPEED,  -15,  15,15,-15,4.0);  // S1: Strafe left
+       // encoderDrive(TURN_SPEED,   -12, 26, -12, 26,2.0);  // S2: Turn left
+        //encoderDrive(DRIVE_SPEED,  5,  -5,-5,5,2.0);  // S1: Strafe left
+        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_UP,tSensor);
+        sleep(1000);
+        encoderDrive(DRIVE_SPEED,  1,  1,1,1,1.0);
+        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
+        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
+        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
+        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
+
+        sleep(1000);
+        clawGrab.setPosition(CLAW_OPEN);
+        sleep(1000);
+        Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_DOWN,tSensor);
+
+
+        encoderDrive(DRIVE_SPEED,  -20,  -20,-20,-20,1.0);
+        encoderDrive(DRIVE_SPEED,  15,  -15,-15,15,4.0);
+
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
         sleep(1000);  // pause to display final telemetry message.
     }
+
 
     /*
      *  Method to perform a relative move, based on encoder counts.
