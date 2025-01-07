@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.har
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MAX;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_CLOSE;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_GRAB_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_INTAKE;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_OPEN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN;
@@ -23,17 +24,21 @@ import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MAX_HEIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MIN_HEIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.T_SENSOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_LOWER_SWITCH;
 import static java.lang.Thread.sleep;
 import  org.firstinspires.ftc.teamcode.Argo_Movements.*;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.AnalogInputController;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsTouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -51,6 +56,7 @@ public class DriveRobot extends OpMode
     private Servo clawSpin;
     private Servo clawArm;
     TouchSensor tSensor;
+    private ModernRoboticsTouchSensor sliderLowerSwitch;
     //This is the Gyro (actually the Inertial Measurement Unit)
     IMU imu;
 
@@ -93,6 +99,9 @@ public class DriveRobot extends OpMode
         sliderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         sliderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        sliderLowerSwitch = hardwareMap.get(ModernRoboticsTouchSensor.class,SLIDER_LOWER_SWITCH);
+
+
         //Claw
         clawGrab = hardwareMap.servo.get(CLAW_INTAKE);
         clawSpin = hardwareMap.servo.get(CLAW_SPIN);
@@ -100,8 +109,13 @@ public class DriveRobot extends OpMode
         Claw_Move = new Claw_Movements(clawGrab,sliderMotor, clawSpin, clawArm,tSensor,telemetry);
 
         clawArm.setPosition(ARM_MIN);
+        clawGrab.setPosition(CLAW_GRAB_MIN);//initialize to avoid it spinning in some strange direction the first time it is used.
 
         tSensor = hardwareMap.touchSensor.get(T_SENSOR);//E Hub - Port #0
+
+        telemetry.addData("Slider Position", sliderMotor.getCurrentPosition());
+        telemetry.update();
+
     }
     /*
      * Code to run REPEATEDLY after the driver hits START but before they hit STOP
@@ -133,6 +147,16 @@ public class DriveRobot extends OpMode
 
         double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
                 Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
+
+        //read the slider switch and show on the screen
+        if(sliderLowerSwitch.isPressed()){
+            telemetry.addLine("Slider Lower Limit Reached!");
+        }
+        else {
+            telemetry.addLine("Slider is raised to position "+ sliderMotor.getCurrentPosition());
+        }
+
+
         if (maxPower > 1.0) {
             frontLeftPower /= maxPower;
             frontRightPower /= maxPower;

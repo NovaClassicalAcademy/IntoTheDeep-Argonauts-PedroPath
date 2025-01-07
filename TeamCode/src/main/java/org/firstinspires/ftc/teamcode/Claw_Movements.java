@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+
 
 import static com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
@@ -41,7 +43,7 @@ public class Claw_Movements {
     private DcMotor sliderMotor;
     private TouchSensor tSensor;
     private Telemetry telemetry;
-
+    private DcMotorEx coolMotor;
 
     public Claw_Movements(Servo ClawGrabber, DcMotor sliderMotor,Servo clawSpin, Servo clawArm,TouchSensor tSensor,Telemetry telemetry) {
         this.clawGrab = ClawGrabber;

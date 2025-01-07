@@ -20,6 +20,9 @@ public class Argo_Configuration {
         // Motor Name - Intake Slider
         public static final String SLIDER_MOTOR = "sliderMotor";
 
+        //slider down limit switch
+        public static final String SLIDER_LOWER_SWITCH = "sliderLowerSwitch";
+
         // Servo position - Claw grab
         public static final double CLAW_GRAB_MIN = 0.15;
         public static final double CLAW_GRAB_MAX = 0.35;
@@ -51,7 +54,7 @@ public class Argo_Configuration {
         public static final String CLAW_UP_DOWN = "servoArm";//port #0
 
         // Motor speeds (Power settings)
-        public static final double MAX_MOTOR_SPEED = 1.0;
+        public static final double MAX_MOTOR_SPEED = 0.8;
         public static final double MIN_MOTOR_SPEED = 0.2;
 
         // Slider Motor speeds (Power settings)
@@ -69,6 +72,8 @@ public class Argo_Configuration {
         //Slider Height for hanging specimen
         public static final int SLIDE_MAX_HEIGHT_HANG = 2500;
         public static final int SLIDE_MIN_HEIGHT_HANG = 0;
+
+
 
         // Slider direction
         public static final int MOVE_DOWN = 0;
