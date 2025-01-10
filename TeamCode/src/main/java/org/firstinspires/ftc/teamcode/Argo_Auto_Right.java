@@ -163,31 +163,9 @@ public class Argo_Auto_Right extends LinearOpMode {
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        //encoderDrive(DRIVE_SPEED,  12,  12,12,12,3.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        encoderDrive(DRIVE_SPEED,  16,  -16,16,-16,3.0);  // S1: Forward 47 Inches with 5 Sec timeout
         //encoderDrive(TURN_SPEED,   -2, 2, -2, 2,2.0);  // S2: Turn left 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, 24, 24, 24,24,6.0);  // S3: Reverse 24 Inches with 4 Sec timeout
-
-        encoderDrive(DRIVE_SPEED,  20,  20,20,20,1.0);
-        encoderDrive(DRIVE_SPEED,  -15,  15,15,-15,4.0);  // S1: Strafe left
-       // encoderDrive(TURN_SPEED,   -12, 26, -12, 26,2.0);  // S2: Turn left
-        //encoderDrive(DRIVE_SPEED,  5,  -5,-5,5,2.0);  // S1: Strafe left
-        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_UP,tSensor);
-        sleep(1000);
-        encoderDrive(DRIVE_SPEED,  1,  1,1,1,1.0);
-        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
-        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
-        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
-        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
-
-        sleep(1000);
-        clawGrab.setPosition(CLAW_OPEN);
-        sleep(1000);
-        Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_DOWN,tSensor);
-
-
-        encoderDrive(DRIVE_SPEED,  -20,  -20,-20,-20,1.0);
-        encoderDrive(DRIVE_SPEED,  15,  -15,-15,15,4.0);
-
 
         telemetry.addData("Path", "Complete");
         telemetry.update();

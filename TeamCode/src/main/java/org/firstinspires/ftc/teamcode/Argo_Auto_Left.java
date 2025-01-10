@@ -39,6 +39,7 @@ import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_RIGHT_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.MIN_MOTOR_SPEED;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_DOWN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_UP;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR;
@@ -167,10 +168,13 @@ public class Argo_Auto_Left extends LinearOpMode {
         //encoderDrive(TURN_SPEED,   -2, 2, -2, 2,2.0);  // S2: Turn left 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, 24, 24, 24,24,6.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
-        encoderDrive(DRIVE_SPEED,  4,  4,4,4,1.0);
-        encoderDrive(DRIVE_SPEED,  -21,  21,21,-21,4.0);  // S1: Strafe left
-        encoderDrive(TURN_SPEED,   -12, 26, -12, 26,2.0);  // S2: Turn left
-        //encoderDrive(DRIVE_SPEED,  5,  -5,-5,5,2.0);  // S1: Strafe left
+        //encoderDrive(DRIVE_SPEED,  4,  4,4,4,1.0);
+        //encoderDrive(DRIVE_SPEED,  -21,  21,21,-21,4.0);  // S1: Strafe left
+        //encoderDrive(TURN_SPEED,   -12, 26, -12, 26,2.0);  // S2: Turn left
+        encoderDrive(DRIVE_SPEED,  8,  -8,-8,8,2.0);  // S1: Strafe left
+        sleep(1000);
+        encoderDrive(MIN_MOTOR_SPEED,   2, 2, 2, 2,2.0);
+        sleep(1000);
         Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_UP,tSensor);
         sleep(1000);
         clawArm.setPosition(ARM_MID_POINT);
@@ -180,10 +184,18 @@ public class Argo_Auto_Left extends LinearOpMode {
         clawArm.setPosition(ARM_MIN);
         sleep(1000);
         Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_DOWN,tSensor);
+        sleep(1000);
+        encoderDrive(MIN_MOTOR_SPEED,   -10, -10, -10, -10,4);
+        encoderDrive(TURN_SPEED,   -12, 4, -12, 4,4.0);  // S2: Turn left
+        encoderDrive(TURN_SPEED,   -15, -15, -15, -15,4.0);
+        encoderDrive(TURN_SPEED,   -12, 14, -12, 14,4.0);
+        encoderDrive(MIN_MOTOR_SPEED,   4, 4, 4, 4,4.0);
+        Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_UP,tSensor);
+        sleep(1000);
+        clawArm.setPosition(ARM_MID_POINT);
 
-
-        encoderDrive(TURN_SPEED,12, -28, 12, -28,2.0);
-        encoderDrive(DRIVE_SPEED,   -12, 26, -12, 26,2.0);
+        //encoderDrive(TURN_SPEED,12, -28, 12, -28,2.0);
+        //encoderDrive(DRIVE_SPEED,   -12, 26, -12, 26,2.0);
         //encoderDrive(TURN_SPEED,   -12, 26, -12, 26,2.0);
         //encoderDrive(DRIVE_SPEED,   -12, 26, -12, 26,2.0);
 

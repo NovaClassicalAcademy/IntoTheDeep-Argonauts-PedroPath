@@ -24,7 +24,7 @@ public class Argo_Configuration {
         public static final String SLIDER_LOWER_SWITCH = "sliderLowerSwitch";
 
         // Servo position - Claw grab
-        public static final double CLAW_GRAB_MIN = 0.15;
+        public static final double CLAW_GRAB_MIN = 0.1;
         public static final double CLAW_GRAB_MAX = 0.35;
 
         //Claw positions
@@ -38,12 +38,12 @@ public class Argo_Configuration {
         public static final int CLAW_SPIN_RIGHT = 1;
 
         // Servo position - Claw Spin
-        public static final double CLAW_SPIN_MIN = 1;
+        public static final double CLAW_SPIN_MIN = 0.88;
         public static final double CLAW_SPIN_MAX = 0.5;
 
         // Servo position - Arm
         public static final double ARM_MIN = 0.29;
-        public static final double ARM_MAX = 0.65;
+        public static final double ARM_MAX = 0.67;
         public static final double ARM_MID_POINT = (ARM_MIN + ARM_MAX)/2;
         public static final double ARM_LARGE_INCREMENT = 0.01;
         public static final double ARM_SMALL_INCREMENT = 0.005;
@@ -68,11 +68,12 @@ public class Argo_Configuration {
         //Slider Height
         public static final int SLIDE_MAX_HEIGHT = 5500;
         public static final int SLIDE_MIN_HEIGHT = 0;
+        public static final int SLIDE_TIMEOUT = 6000;
 
         //Slider Height for hanging specimen
         public static final int SLIDE_MAX_HEIGHT_HANG = 2500;
         public static final int SLIDE_MIN_HEIGHT_HANG = 0;
-
+        public static final int SLIDE_HANG_TIMEOUT = 3000;
 
 
         // Slider direction

@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_INTAKE;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_OPEN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_LEFT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_RIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_LEFT_MOTOR;
@@ -40,6 +41,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsTouchSensor;
 
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 //*TELEMETRY- Set power so that it will move but do sleep 2 sec so the servo moves*//
@@ -57,6 +59,9 @@ public class DriveRobot extends OpMode
     private Servo clawArm;
     TouchSensor tSensor;
     private ModernRoboticsTouchSensor sliderLowerSwitch;
+
+
+
     //This is the Gyro (actually the Inertial Measurement Unit)
     IMU imu;
 
@@ -110,6 +115,8 @@ public class DriveRobot extends OpMode
 
         clawArm.setPosition(ARM_MIN);
         clawGrab.setPosition(CLAW_GRAB_MIN);//initialize to avoid it spinning in some strange direction the first time it is used.
+        clawSpin.setPosition(CLAW_SPIN_MIN);
+
 
         tSensor = hardwareMap.touchSensor.get(T_SENSOR);//E Hub - Port #0
 
@@ -150,7 +157,10 @@ public class DriveRobot extends OpMode
 
         //read the slider switch and show on the screen
         if(sliderLowerSwitch.isPressed()){
+            sliderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            sliderMotor.setPower(0);
             telemetry.addLine("Slider Lower Limit Reached!");
+
         }
         else {
             telemetry.addLine("Slider is raised to position "+ sliderMotor.getCurrentPosition());
@@ -186,6 +196,7 @@ public class DriveRobot extends OpMode
         telemetry.addData("Back Left Power", backLeftPower);
         telemetry.addData("Back Right Power", backRightPower);
         telemetry.addData("Slider Position", sliderMotor.getCurrentPosition());
+        telemetry.addData("Wrist", clawSpin.getPosition());
         telemetry.update();
 
        //Claw operations - Open and Close
