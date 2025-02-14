@@ -36,12 +36,14 @@ import static org.firstinspires.ftc.teamcode.Argo_Configuration.BACK_RIGHT_MOTOR
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_INTAKE;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_OPEN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN;
-import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN_LEFT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN_RIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_RIGHT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_DOWN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_UP;
-import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR_LEFT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR_RIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.T_SENSOR;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -110,7 +112,7 @@ public class Argo_Auto_Right extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
+/*
         // Initialize the drive system variables.
 
         frontLeftMotor = hardwareMap.dcMotor.get(FRONT_LEFT_MOTOR);//Hub - Port #2
@@ -119,7 +121,7 @@ public class Argo_Auto_Right extends LinearOpMode {
         backRightMotor = hardwareMap.dcMotor.get(BACK_RIGHT_MOTOR);//Hub - Port #3
 
         //Slider
-        sliderMotor = hardwareMap.dcMotor.get(SLIDER_MOTOR);//EHub- Port #1
+        sliderMotor = hardwareMap.dcMotor.get(SLIDER_MOTOR_LEFT);//EHub- Port #1
         sliderMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         sliderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         sliderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -127,8 +129,8 @@ public class Argo_Auto_Right extends LinearOpMode {
         //Claw
         clawGrab = hardwareMap.servo.get(CLAW_INTAKE);
         clawSpin = hardwareMap.servo.get(CLAW_SPIN);
-        clawArm = hardwareMap.servo.get(CLAW_UP_DOWN);
-        Claw_Move = new Claw_Movements(clawGrab,sliderMotor, clawSpin, clawArm,tSensor,telemetry);
+        //clawArm = hardwareMap.servo.get(CLAW_UP_DOWN);
+        Claw_Move = new Claw_Movements(clawGrab,sliderMotor, clawSpin, clawArm,telemetry);
 
         clawArm.setPosition(ARM_MIN);
 
@@ -163,7 +165,7 @@ public class Argo_Auto_Right extends LinearOpMode {
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED,  16,  -16,16,-16,3.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        encoderDrive(DRIVE_SPEED,  18,  -18,-18,18,3.0);  // S1: Forward 47 Inches with 5 Sec timeout
         //encoderDrive(TURN_SPEED,   -2, 2, -2, 2,2.0);  // S2: Turn left 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, 24, 24, 24,24,6.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
@@ -171,7 +173,7 @@ public class Argo_Auto_Right extends LinearOpMode {
         telemetry.update();
         sleep(1000);  // pause to display final telemetry message.
     }
-
+*/
 
     /*
      *  Method to perform a relative move, based on encoder counts.
@@ -181,6 +183,7 @@ public class Argo_Auto_Right extends LinearOpMode {
      *  2) Move runs out of time
      *  3) Driver stops the OpMode running.
      */
+        /*
     public void encoderDrive(double speed,
                              double frontLeftInches, double frontRightInches,double backLeftInches, double backRightInches,
                              double timeoutS) {
@@ -247,5 +250,9 @@ public class Argo_Auto_Right extends LinearOpMode {
 
             sleep(250);   // optional pause after each move.
         }
+
+         */
     }
+
+
 }

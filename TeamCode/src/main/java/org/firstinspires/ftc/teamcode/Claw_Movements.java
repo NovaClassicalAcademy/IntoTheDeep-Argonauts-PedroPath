@@ -24,6 +24,7 @@ import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_MAX;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_RIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_LEFT_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOTOR_STOP;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_DOWN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_UP;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_SPEED;
@@ -42,17 +43,23 @@ public class Claw_Movements {
     private Servo clawGrab;
     private Servo clawSpin;
     private Servo clawArm;
-    private DcMotor sliderMotor;
-    private TouchSensor tSensor;
+    private Servo pivotArmLeft;
+    private Servo pivotArmRight;
+    private DcMotor sliderMotorLeft;
+    private DcMotor sliderMotorRight;
+    //private TouchSensor tSensor;
     private Telemetry telemetry;
     private DcMotorEx coolMotor;
     ElapsedTime runtime = new ElapsedTime();  // Timer for timeout checking
-    public Claw_Movements(Servo ClawGrabber, DcMotor sliderMotor,Servo clawSpin, Servo clawArm,TouchSensor tSensor,Telemetry telemetry) {
+    public Claw_Movements(Servo ClawGrabber, DcMotor sliderMotorLeft,DcMotor sliderMotorRight,Servo clawSpin, Servo clawArm,Servo pivotArmLeft, Servo pivotArmRight, Telemetry telemetry) {
         this.clawGrab = ClawGrabber;
-        this.sliderMotor = sliderMotor;
+        this.sliderMotorLeft = sliderMotorLeft;
+        this.sliderMotorRight = sliderMotorRight;
         this.clawSpin = clawSpin;
         this.clawArm = clawArm;
-        this.tSensor = tSensor;
+        this.pivotArmLeft = pivotArmLeft;
+        this.pivotArmRight = pivotArmRight;
+        //this.tSensor = tSensor;
         this.telemetry = telemetry;
     }
     public void claw_Grabber(Servo clawGrab, int clawDirection) {
@@ -64,10 +71,10 @@ public class Claw_Movements {
             clawGrab.setPosition(CLAW_GRAB_MAX);
         }
     }
-    public void claw_moveArm(Servo clawArm, int clawDirection) {
+    public void claw_moveArm(Servo pivotArmLeft, int clawDirection) {
         double newPos;
         double currPos;
-        currPos = clawArm.getPosition();
+        currPos = pivotArmLeft.getPosition();
 
         if (clawDirection == MOVE_UP) {
             if (currPos <=ARM_MID_POINT){
@@ -78,7 +85,7 @@ public class Claw_Movements {
                 newPos = currPos - ARM_SMALL_INCREMENT; // 0.01
             }
             if (newPos >ARM_MIN){
-                clawArm.setPosition(newPos);
+                pivotArmLeft.setPosition(newPos);
             }
         } else if (clawDirection == MOVE_DOWN) {
             if (currPos <=ARM_MID_POINT){
@@ -90,12 +97,47 @@ public class Claw_Movements {
             }
 
             if (newPos < ARM_MAX) {
-                clawArm.setPosition(newPos);
+                pivotArmLeft.setPosition(newPos);
             }
         }
-        telemetry.addData("Arm position 3 ", clawArm.getPosition());
+        telemetry.addData("Arm position 3 ", pivotArmLeft.getPosition());
         telemetry.update();
     }
+
+    public void claw_movePivot(Servo pivotServo, int pivotDirection) {
+        double newPos;
+        double currPos;
+        currPos = pivotArmLeft.getPosition();
+
+        if (pivotDirection == MOVE_UP) {
+            if (currPos <=ARM_MID_POINT){
+                newPos = currPos - ARM_LARGE_INCREMENT; // 0.01
+            }
+            else
+            {
+                newPos = currPos - ARM_SMALL_INCREMENT; // 0.01
+            }
+            if (newPos >ARM_MIN){
+                pivotArmLeft.setPosition(newPos);
+            }
+        } else if (pivotDirection == MOVE_DOWN) {
+            if (currPos <=ARM_MID_POINT){
+                newPos = currPos + ARM_LARGE_INCREMENT;
+            }
+            else
+            {
+                newPos = currPos + ARM_SMALL_INCREMENT;
+            }
+
+            if (newPos < ARM_MAX) {
+                pivotServo.setPosition(newPos);
+            }
+        }
+        telemetry.addData("Arm position 3 ", pivotServo.getPosition());
+        telemetry.update();
+    }
+
+
     public void claw_Rotate(Servo clawSpin, int clawDirection) {
         double newPos;
         double currPos;
@@ -114,33 +156,42 @@ public class Claw_Movements {
             }
         }
     }
-    public void sliderMoveToPosition(DcMotor sliderMotor, int sliderDirection, TouchSensor tSensor) {
+    //public void sliderMoveToPosition(DcMotor sliderMotor, int sliderDirection, TouchSensor tSensor) {
+    public void sliderMoveToPosition(DcMotor sliderMotorLeft,DcMotor sliderMotorRight, int sliderDirection) {
         double motorSpeed = 0;
         int currPos;
         int newPos;
 
-        currPos = sliderMotor.getCurrentPosition();
+        currPos = sliderMotorLeft.getCurrentPosition();
         // sliderDirection = 0 - Down; 1 - Up
         if (sliderDirection == MOVE_DOWN) {
             // Set the target position for the motor (encoder position) - LOWEST POINT
-            sliderMotor.setTargetPosition(SLIDE_MIN_HEIGHT);
-            sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sliderMotorLeft.setTargetPosition(SLIDE_MIN_HEIGHT);
+            sliderMotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sliderMotorRight.setTargetPosition(SLIDE_MIN_HEIGHT);
+            sliderMotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
             motorSpeed = -SLIDER_SPEED;
             // Set the motor power to move towards the target
-            sliderMotor.setPower(motorSpeed);
+            sliderMotorLeft.setPower(motorSpeed);
+            sliderMotorRight.setPower(motorSpeed);
 
         } else if (sliderDirection == MOVE_UP) {
             // Set the target position for the motor (encoder position) - HIGHEST POINT
-            sliderMotor.setTargetPosition(SLIDE_MAX_HEIGHT);
-            sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sliderMotorLeft.setTargetPosition(SLIDE_MAX_HEIGHT);
+            sliderMotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sliderMotorRight.setTargetPosition(SLIDE_MAX_HEIGHT);
+            sliderMotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorSpeed = SLIDER_SPEED;
-            sliderMotor.setPower(motorSpeed);
+            sliderMotorLeft.setPower(motorSpeed);
+            sliderMotorRight.setPower(motorSpeed);
         }
-        telemetry.addData("Slider position before while loop ", sliderMotor.getCurrentPosition());
+        telemetry.addData("Slider LEFT position before while loop ", sliderMotorLeft.getCurrentPosition());
+        telemetry.addData("Slider RIGHT position before while loop ", sliderMotorRight.getCurrentPosition());
         telemetry.update();
 
         runtime.reset();
-        while (sliderMotor.isBusy()) {
+        while (sliderMotorLeft.isBusy() || sliderMotorRight.isBusy()) {
             // This loop will wait until the motor reaches the target position
             // You can also add other logic here, like displaying telemetry data
             // telemetry.addData("Slider", "Moving to target...");
@@ -149,7 +200,8 @@ public class Claw_Movements {
             if (runtime.milliseconds() >= SLIDE_TIMEOUT) {
                 telemetry.addData("Timeout", "Motor did not reach the target position within the timeout period.");
                 telemetry.update();
-                sliderMotor.setPower(0);  // Stop the motor if timeout occurs
+                sliderMotorLeft.setPower(MOTOR_STOP);  // Stop the motor if timeout occurs
+                sliderMotorRight.setPower(MOTOR_STOP);
                 break;  // Exit the loop if timeout
 
            /* if (tSensor.isPressed() && sliderDirection == MOVE_DOWN) {
@@ -168,39 +220,45 @@ public class Claw_Movements {
             }
         }
     }
-    public void sliderHangSpecimen(DcMotor sliderMotor, int sliderDirection, TouchSensor tSensor) {
+    //public void sliderHangSpecimen(DcMotor sliderMotor, int sliderDirection, TouchSensor tSensor) {
+    public void sliderHangSpecimen(DcMotor sliderMotorLeft, DcMotor sliderMotorRight, int sliderDirection) {
         double motorSpeed = 0;
         int currPos;
         int newPos;
 
-        currPos = sliderMotor.getCurrentPosition();
+        currPos = sliderMotorLeft.getCurrentPosition();
         // sliderDirection = 0 - Down; 1 - Up
         if (sliderDirection == MOVE_DOWN) {
 
             newPos = currPos - 100;
             if (newPos >= SLIDE_MIN_HEIGHT_HANG) {
                 // Set the target position for the motor (encoder position) - LOWEST POINT
-                sliderMotor.setTargetPosition(newPos);
-                sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                sliderMotorLeft.setTargetPosition(newPos);
+                sliderMotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                sliderMotorRight.setTargetPosition(newPos);
+                sliderMotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 motorSpeed = -SLIDER_SPEED_HANG;
                 // Set the motor power to move towards the target
-                sliderMotor.setPower(motorSpeed);
+                sliderMotorLeft.setPower(motorSpeed);
+                sliderMotorRight.setPower(motorSpeed);
             }
-
-
         } else if (sliderDirection == MOVE_UP) {
             // Set the target position for the motor (encoder position) - HIGHEST POINT
-            sliderMotor.setTargetPosition(SLIDE_MAX_HEIGHT_HANG);
-            sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sliderMotorLeft.setTargetPosition(SLIDE_MAX_HEIGHT_HANG);
+            sliderMotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sliderMotorRight.setTargetPosition(SLIDE_MAX_HEIGHT_HANG);
+            sliderMotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorSpeed = SLIDER_SPEED_HANG;
-            sliderMotor.setPower(motorSpeed);
+            sliderMotorLeft.setPower(motorSpeed);
+            sliderMotorRight.setPower(motorSpeed);
         }
-        telemetry.addData("Slider position before while loop ", sliderMotor.getCurrentPosition());
+        telemetry.addData("Slider LEFT position before while loop ", sliderMotorLeft.getCurrentPosition());
+        telemetry.addData("Slider RIGHT position before while loop ", sliderMotorLeft.getCurrentPosition());
         telemetry.update();
 
         runtime.reset();
 
-        while (sliderMotor.isBusy()) {
+        while (sliderMotorLeft.isBusy() || sliderMotorRight.isBusy() ) {
             // This loop will wait until the motor reaches the target position
             // You can also add other logic here, like displaying telemetry data
             // telemetry.addData("Slider", "Moving to target...");
@@ -209,43 +267,21 @@ public class Claw_Movements {
             if (runtime.milliseconds() >= SLIDE_HANG_TIMEOUT) {
                 telemetry.addData("Timeout", "Motor did not reach the target position within the timeout period.");
                 telemetry.update();
-                sliderMotor.setPower(0);  // Stop the motor if timeout occurs
+                sliderMotorLeft.setPower(MOTOR_STOP);  // Stop the motor if timeout occurs
+                sliderMotorRight.setPower(MOTOR_STOP);
                 break;  // Exit the loop if timeout
             }
-
-
-        /*
-        while (sliderMotor.isBusy()) {
-            // This loop will wait until the motor reaches the target position
-            // You can also add other logic here, like displaying telemetry data
-            // telemetry.addData("Slider", "Moving to target...");
-            //  telemetry.update();
-            if (tSensor.isPressed() && sliderDirection == MOVE_DOWN) {
-                telemetry.addData("Switch 2 ", "Pressed");
-                telemetry.addData("Slider position before reset", sliderMotor.getCurrentPosition());
-                telemetry.update();
-                //Slider_stop(sliderMotor);
-
-                sliderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                sliderMotor.setTargetPosition(SLIDE_MIN_HEIGHT);
-                sliderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                sliderMotor.setPower(motorSpeed);
-
-
-                telemetry.addData("Slider position after reset ", sliderMotor.getCurrentPosition());
-                telemetry.update();
-            }
         }
-        */
-            }
     }
     // Method to stop the motor (just in case)
-    public void Slider_stop(DcMotor sliderMotor) {
-        sliderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        sliderMotor.setPower(0);
+    public void Slider_stop(DcMotor sliderMotorLeft,DcMotor sliderMotorRight) {
+        sliderMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        sliderMotorLeft.setPower(MOTOR_STOP);
+        sliderMotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        sliderMotorRight.setPower(MOTOR_STOP);
     }
     // Method to check if the slider motor has reached the target position
     public boolean isAtTarget() {
-        return !sliderMotor.isBusy(); // Return true when motor is not busy (target reached)
+        return (!sliderMotorLeft.isBusy() || !sliderMotorRight.isBusy()); // Return true when motor is not busy (target reached)
     }
 }

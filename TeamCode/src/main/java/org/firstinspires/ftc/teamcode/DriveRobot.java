@@ -1,27 +1,37 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.opMode;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MAX;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.ARM_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_CLOSE;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_GRAB_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_INTAKE;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_OPEN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_PIVOT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_LEFT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_MIN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_SPIN_RIGHT;
-import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN_LEFT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.CLAW_UP_DOWN_RIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.FRONT_RIGHT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.BACK_LEFT_MOTOR;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.BACK_RIGHT_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.GEAR_RATIO;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.LINKAGE_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOTOR_STOP;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR_LEFT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR_RIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_SPEED;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MIN_MOTOR_SPEED;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MAX_MOTOR_SPEED;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_DOWN;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.MOVE_UP;
-import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR_LEFT;
+import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDER_MOTOR_RIGHT;
+
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MAX_HEIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.SLIDE_MIN_HEIGHT;
 import static org.firstinspires.ftc.teamcode.Argo_Configuration.T_SENSOR;
@@ -51,16 +61,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class DriveRobot extends OpMode
 {
     // Declare OpMode members.
-    private DcMotor frontLeftMotor,backLeftMotor,frontRightMotor,backRightMotor,sliderMotor;
+    private DcMotor frontLeftMotor,backLeftMotor,frontRightMotor,backRightMotor,sliderMotorLeft,sliderMotorRight,linkageMotor;
     private Argo_Movements Argo_Robot_Move;
     private Claw_Movements Claw_Move;
-    private Servo clawGrab;;
+    private Servo clawGrab;
     private Servo clawSpin;
     private Servo clawArm;
-    TouchSensor tSensor;
-    private ModernRoboticsTouchSensor sliderLowerSwitch;
+    private Servo pivotArmLeft;
+    private Servo pivotArmRight;
 
-
+    //TouchSensor tSensor;
+    //private ModernRoboticsTouchSensor sliderLowerSwitch;
 
     //This is the Gyro (actually the Inertial Measurement Unit)
     IMU imu;
@@ -77,50 +88,75 @@ public class DriveRobot extends OpMode
         frontRightMotor = hardwareMap.dcMotor.get(FRONT_RIGHT_MOTOR);//Hub - Port #0
         backRightMotor = hardwareMap.dcMotor.get(BACK_RIGHT_MOTOR);//Hub - Port #3
 
-
         frontLeftMotor.resetDeviceConfigurationForOpMode();
         backLeftMotor.resetDeviceConfigurationForOpMode();
         frontRightMotor.resetDeviceConfigurationForOpMode();
         backRightMotor.resetDeviceConfigurationForOpMode();
 
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
         Argo_Robot_Move = new Argo_Movements(frontLeftMotor,backLeftMotor,frontRightMotor,backRightMotor);
+
+        //Slider motors
+        sliderMotorLeft = hardwareMap.dcMotor.get(SLIDER_MOTOR_LEFT);//EHub- Port #0
+        sliderMotorRight = hardwareMap.dcMotor.get(SLIDER_MOTOR_RIGHT);//EHub- Port #1
+        sliderMotorLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        sliderMotorRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        sliderMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        sliderMotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        sliderMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        sliderMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Define the IMU (gyro sensor)
         // Retrieve the IMU from the hardware map
         imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
         imu.initialize(parameters);
         //Field-centric initialization - end
         imu.resetYaw();  //reset the gyro
 
-        //Slider
-        sliderMotor = hardwareMap.dcMotor.get(SLIDER_MOTOR);//EHub- Port #1
-        sliderMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        sliderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        sliderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //sliderLowerSwitch = hardwareMap.get(ModernRoboticsTouchSensor.class,SLIDER_LOWER_SWITCH);
 
-        sliderLowerSwitch = hardwareMap.get(ModernRoboticsTouchSensor.class,SLIDER_LOWER_SWITCH);
-
+        //Linkage
+        linkageMotor= hardwareMap.dcMotor.get(LINKAGE_MOTOR);//EHub- Port #2
+        //linkageMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        linkageMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linkageMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //Claw
         clawGrab = hardwareMap.servo.get(CLAW_INTAKE);
         clawSpin = hardwareMap.servo.get(CLAW_SPIN);
-        clawArm = hardwareMap.servo.get(CLAW_UP_DOWN);
-        Claw_Move = new Claw_Movements(clawGrab,sliderMotor, clawSpin, clawArm,tSensor,telemetry);
+        clawArm = hardwareMap.servo.get(CLAW_PIVOT);
+        pivotArmLeft = hardwareMap.servo.get(CLAW_UP_DOWN_LEFT);
+        pivotArmRight = hardwareMap.servo.get(CLAW_UP_DOWN_RIGHT);
 
-        clawArm.setPosition(ARM_MIN);
-        clawGrab.setPosition(CLAW_GRAB_MIN);//initialize to avoid it spinning in some strange direction the first time it is used.
+       Claw_Move = new Claw_Movements(clawGrab,sliderMotorLeft,sliderMotorRight, clawSpin, clawArm,pivotArmLeft,pivotArmRight,telemetry);
+
+        pivotArmLeft.setPosition(ARM_MIN);
+        //pivotArmRight.setPosition(ARM_MIN);
+       // clawGrab.setPosition(CLAW_GRAB_MIN);//initialize to avoid it spinning in some strange direction the first time it is used.
         clawSpin.setPosition(CLAW_SPIN_MIN);
+        try {
+            sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
-
-        tSensor = hardwareMap.touchSensor.get(T_SENSOR);//E Hub - Port #0
-
-        telemetry.addData("Slider Position", sliderMotor.getCurrentPosition());
+        //tSensor = hardwareMap.touchSensor.get(T_SENSOR);//E Hub - Port #0
+/*
+        sliderMotor.setPower(-SLIDER_SPEED);
+        if (sliderLowerSwitch.isPressed())
+        {
+            sliderMotor.setPower(0);
+        }
+*/
+        telemetry.addData("Slider Position", sliderMotorLeft.getCurrentPosition());
         telemetry.update();
 
     }
@@ -154,7 +190,7 @@ public class DriveRobot extends OpMode
 
         double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
                 Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
-
+/*
         //read the slider switch and show on the screen
         if(sliderLowerSwitch.isPressed()){
             sliderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -166,7 +202,7 @@ public class DriveRobot extends OpMode
             telemetry.addLine("Slider is raised to position "+ sliderMotor.getCurrentPosition());
         }
 
-
+*/
         if (maxPower > 1.0) {
             frontLeftPower /= maxPower;
             frontRightPower /= maxPower;
@@ -186,6 +222,8 @@ public class DriveRobot extends OpMode
             backLeftPower *= MAX_MOTOR_SPEED;
             backRightPower *= MAX_MOTOR_SPEED;
         }
+        frontLeftPower *= GEAR_RATIO;
+        frontRightPower *= GEAR_RATIO;
         // Run motor and regular speed
             Argo_Robot_Move.moveRobot(frontLeftPower,frontRightPower,backLeftPower,backRightPower);
 
@@ -195,8 +233,14 @@ public class DriveRobot extends OpMode
         telemetry.addData("Front Right Power", frontRightPower);
         telemetry.addData("Back Left Power", backLeftPower);
         telemetry.addData("Back Right Power", backRightPower);
-        telemetry.addData("Slider Position", sliderMotor.getCurrentPosition());
+        telemetry.addData("Slider Position", sliderMotorLeft.getCurrentPosition());
         telemetry.addData("Wrist", clawSpin.getPosition());
+
+        telemetry.addData("Front Left Direction", frontLeftMotor.getDirection());
+        telemetry.addData("Front Right Direction", frontRightMotor.getDirection());
+        telemetry.addData("Back Left Direction", backLeftMotor.getDirection());
+        telemetry.addData("Back Right Direction", backRightMotor.getDirection());
+
         telemetry.update();
 
        //Claw operations - Open and Close
@@ -208,48 +252,99 @@ public class DriveRobot extends OpMode
             telemetry.addData("claw Grab position", clawGrab.getPosition());
             telemetry.update();
         }
-        // Claw Spin // Gamepad 2 - x,b
+
+        // Wrist Spin // Gamepad 2 - x,b
 
         if (gamepad2.x){ // Spin left
             Claw_Move.claw_Rotate(clawSpin,CLAW_SPIN_LEFT);
         } else if (gamepad2.b) { //spin right
             Claw_Move.claw_Rotate(clawSpin, CLAW_SPIN_RIGHT);
         }
+
+        //Sliders - flat
+        if (gamepad2.right_bumper)
+        {
+            linkageMotor.setTargetPosition(1100);
+            linkageMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            linkageMotor.setPower(SLIDER_SPEED);
+            try {
+                sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            linkageMotor.setPower(MOTOR_STOP);
+
+        } else if (gamepad2.left_bumper){
+            linkageMotor.setTargetPosition(0);
+            linkageMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            linkageMotor.setPower(-SLIDER_SPEED);
+            try {
+                sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            linkageMotor.setPower(MOTOR_STOP);
+        }
 //move arm up/down
         if (gamepad2.dpad_up){
+            telemetry.addData("Arm position 1", pivotArmLeft.getPosition());
+            telemetry.update();
+            Claw_Move.claw_moveArm(pivotArmLeft,MOVE_UP);
+            //Claw_Move.claw_moveArm(pivotArmRight,MOVE_UP);
+        } else if (gamepad2.dpad_down) {
+            telemetry.addData("Arm position 2", pivotArmLeft.getPosition());
+            telemetry.update();
+            Claw_Move.claw_moveArm(pivotArmLeft, MOVE_DOWN);
+            //Claw_Move.claw_moveArm(pivotArmRight, MOVE_DOWN);
+        }
+
+        telemetry.addData("Arm current position ", pivotArmLeft.getPosition());
+        telemetry.update();
+
+        //move pivot up/down
+        if (gamepad1.y){
             telemetry.addData("Arm position 1", clawArm.getPosition());
             telemetry.update();
-            Claw_Move.claw_moveArm(clawArm,MOVE_UP);
-        } else if (gamepad2.dpad_down) {
+            Claw_Move.claw_movePivot(clawArm,MOVE_UP);
+
+        } else if (gamepad1.a) {
             telemetry.addData("Arm position 2", clawArm.getPosition());
             telemetry.update();
-            Claw_Move.claw_moveArm(clawArm, MOVE_DOWN);
+            Claw_Move.claw_movePivot(clawArm, MOVE_DOWN);
+            //Claw_Move.claw_moveArm(pivotArmRight, MOVE_DOWN);
         }
 
         telemetry.addData("Arm current position ", clawArm.getPosition());
         telemetry.update();
 
+
     // Move sliders up and down
         if (gamepad1.dpad_up){
-            Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_UP,tSensor);
+           Claw_Move.sliderMoveToPosition(sliderMotorLeft,sliderMotorRight,MOVE_UP);
             }
 
         if (gamepad1.dpad_down){
-            Claw_Move.sliderMoveToPosition(sliderMotor,MOVE_DOWN,tSensor);
+            Claw_Move.sliderMoveToPosition(sliderMotorLeft,sliderMotorRight,MOVE_DOWN);
             }
-         //else {
-          //  Claw_Move.Slider_stop(sliderMotor);
-        //}
+         else {
+            Claw_Move.Slider_stop(sliderMotorLeft,sliderMotorRight);
+        }
+        /*
+
         // Move sliders up and down to hang the specimen
         if (gamepad2.y){
-            Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_UP,tSensor);
+            //Claw_Move.sliderHangSpecimen(sliderMotorLeft,MOVE_UP,tSensor);
+            Claw_Move.sliderHangSpecimen(sliderMotorLeft,MOVE_UP);
         }
         if (gamepad2.a){
-            Claw_Move.sliderHangSpecimen(sliderMotor,MOVE_DOWN,tSensor);
+            //Claw_Move.sliderHangSpecimen(sliderMotorLeft,MOVE_DOWN,tSensor);
+            Claw_Move.sliderHangSpecimen(sliderMotorLeft,MOVE_DOWN);
         }
         else {
-            Claw_Move.Slider_stop(sliderMotor);
+            //Claw_Move.Slider_stop(sliderMotorLeft);
         }
+
+    */
     }
      /*
      * Code to run ONCE after the driver hits STOP
